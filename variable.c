@@ -794,23 +794,19 @@ int owl_variable_get_bool(const owl_vardict *d, const char *name) {
 
 void owl_variable_describe(const owl_vardict *d, const char *name, owl_fmtext *fm) {
   char *defaultp;
-  char buf[1024];
-  int buflen = 1023;
   owl_variable *v;
 
   if (!name
       || (v = owl_dict_find_element(d, name)) == NULL 
       || !v->get_fn) {
-    snprintf(buf, buflen, "     No such variable '%s'\n", name);     
-    owl_fmtext_append_normal(fm, buf);
+    owl_fmtext_appendf_normal(fm, "     No such variable '%s'\n", name);
     return;
   }
   defaultp = owl_variable_to_default(v);
-  snprintf(buf, buflen, OWL_TABSTR "%-20s - %s (default: '%s')\n",
-		  v->name,
-		  owl_variable_get_summary(v), defaultp);
+  owl_fmtext_appendf_normal(fm, OWL_TABSTR "%-20s - %s (default: '%s')\n",
+			    v->name,
+			    owl_variable_get_summary(v), defaultp);
   owl_free(defaultp);
-  owl_fmtext_append_normal(fm, buf);
 }
 
 void owl_variable_get_help(const owl_vardict *d, const char *name, owl_fmtext *fm) {
@@ -825,33 +821,23 @@ void owl_variable_get_help(const owl_vardict *d, const char *name, owl_fmtext *f
   }
 
   owl_fmtext_append_bold(fm, "OWL VARIABLE\n\n");
-  owl_fmtext_append_normal(fm, OWL_TABSTR);
-  owl_fmtext_append_normal(fm, name);
-  owl_fmtext_append_normal(fm, " - ");
-  owl_fmtext_append_normal(fm, v->summary);
-  owl_fmtext_append_normal(fm, "\n\n");
+  owl_fmtext_appendf_normal(fm, OWL_TABSTR "%s - %s\n\n",
+			    name, v->summary);
 
   p = owl_variable_get_value(d, name);
-  owl_fmtext_append_normal(fm, "Current:        ");
-  owl_fmtext_append_normal(fm, p);
-  owl_fmtext_append_normal(fm, "\n\n");
+  owl_fmtext_appendf_normal(fm, "Current:        %s\n\n", p);
   owl_free(p);
 
   p = owl_variable_to_default(v);
-  owl_fmtext_append_normal(fm, "Default:        ");
-  owl_fmtext_append_normal(fm, p);
-  owl_fmtext_append_normal(fm, "\n\n");
+  owl_fmtext_appendf_normal(fm,"Default:        %s\n\n", p);
   owl_free(p);
 
-  owl_fmtext_append_normal(fm, "Valid Settings: ");
-  owl_fmtext_append_normal(fm, owl_variable_get_validsettings(v));
-  owl_fmtext_append_normal(fm, "\n\n");
+  owl_fmtext_appendf_normal(fm, "Valid Settings: %s\n\n",
+			    owl_variable_get_validsettings(v));
 
-  if (v->description && *v->description) {
-    owl_fmtext_append_normal(fm, "Description:\n");
-    owl_fmtext_append_normal(fm, owl_variable_get_description(v));
-    owl_fmtext_append_normal(fm, "\n\n");
-  }
+  if (v->description && *v->description)
+    owl_fmtext_appendf_normal(fm, "Description:\n%s\n\n",
+			      owl_variable_get_description(v));
 }
 
 
