@@ -649,8 +649,10 @@ const char *owl_variable_get_validsettings(const owl_variable *v) {
 /* returns 0 on success, prints a status msg if msg is true */
 int owl_variable_set_fromstring(owl_vardict *d, const char *name, const char *value, int msg, int requirebool) {
   owl_variable *v;
-  char buff2[1024];
-  if (!name) return(-1);
+  char *p;
+
+  if (!name)
+    return -1;
   v = owl_dict_find_element(d, name);
   if (v == NULL) {
     if (msg) owl_function_error("Unknown variable %s", name);
@@ -670,9 +672,10 @@ int owl_variable_set_fromstring(owl_vardict *d, const char *name, const char *va
     return -1;
   }
   if (msg && v->get_tostring_fn) {
-    v->get_tostring_fn(v, buff2, 1024, v->val);
-    owl_function_makemsg("%s = '%s'", name, buff2);
-  }    
+    p = owl_variable_to_string(v);
+    owl_function_makemsg("%s = '%s'", name, p);
+    owl_free(p);
+  }
   return 0;
 }
  
@@ -702,24 +705,52 @@ int owl_variable_set_bool_off(owl_vardict *d, const char *name) {
   return owl_variable_set_int(d,name,0);
 }
 
-int owl_variable_get_tostring(const owl_vardict *d, const char *name, char *buf, int bufsize) {
+char *owl_variable_get_value_not_null(const owl_vardict *d, const char *name) {
   owl_variable *v;
-  if (!name) return(-1);
+
+  if (!name)
+    return NULL;
+
   v = owl_dict_find_element(d, name);
-  if (v == NULL || !v->get_tostring_fn) return(-1);
-  return v->get_tostring_fn(v, buf, bufsize, v->val);
+  if (v == NULL || !v->get_tostring_fn)
+    return NULL;
+
+  return v->get_tostring_fn(v, v->val);
 }
 
-int owl_variable_get_default_tostring(const owl_vardict *d, const char *name, char *buf, int bufsize) {
-  owl_variable *v;
-  if (!name) return(-1);
-  v = owl_dict_find_element(d, name);
-  if (v == NULL || !v->get_tostring_fn) return(-1);
-  if (v->type == OWL_VARIABLE_INT || v->type == OWL_VARIABLE_BOOL) {
-    return v->get_tostring_fn(v, buf, bufsize, &(v->ival_default));
-  } else {
-    return v->get_tostring_fn(v, buf, bufsize, v->pval_default);
-  }
+char *owl_variable_get_value(const owl_vardict *d, const char *name) {
+  char *p;
+
+  p = owl_variable_get_value_not_null(d, name);
+
+  if (p == NULL)
+    return owl_strdup("<null>");
+
+  return p;
+}
+
+char *owl_variable_to_string_value(owl_variable *v, const void *val) {
+  char *p;
+
+  if (v == NULL || !v->get_tostring_fn)
+    return NULL;
+
+  p = v->get_tostring_fn(v, val);
+
+  if (p == NULL)
+    return owl_strdup("<null>");
+
+  return p;
+}
+
+char *owl_variable_to_string(owl_variable *v) {
+  return owl_variable_to_string_value(v, v->val);
+}
+
+char *owl_variable_to_default(owl_variable *v) {
+  if (v->type == OWL_VARIABLE_INT || v->type == OWL_VARIABLE_BOOL)
+    return owl_variable_to_string_value(v, &(v->ival_default));
+  return owl_variable_to_string_value(v, v->pval_default);
 }
 
 owl_variable *owl_variable_get_var(const owl_vardict *d, const char *name, int require_type) {
@@ -762,7 +793,7 @@ int owl_variable_get_bool(const owl_vardict *d, const char *name) {
 }
 
 void owl_variable_describe(const owl_vardict *d, const char *name, owl_fmtext *fm) {
-  char defaultbuf[50];
+  char *defaultp;
   char buf[1024];
   int buflen = 1023;
   owl_variable *v;
@@ -774,20 +805,16 @@ void owl_variable_describe(const owl_vardict *d, const char *name, owl_fmtext *f
     owl_fmtext_append_normal(fm, buf);
     return;
   }
-  if (v->type == OWL_VARIABLE_INT || v->type == OWL_VARIABLE_BOOL) {
-    v->get_tostring_fn(v, defaultbuf, 50, &(v->ival_default));
-  } else {
-    v->get_tostring_fn(v, defaultbuf, 50, v->pval_default);
-  }
-  snprintf(buf, buflen, OWL_TABSTR "%-20s - %s (default: '%s')\n", 
-		  v->name, 
-		  owl_variable_get_summary(v), defaultbuf);
+  defaultp = owl_variable_to_default(v);
+  snprintf(buf, buflen, OWL_TABSTR "%-20s - %s (default: '%s')\n",
+		  v->name,
+		  owl_variable_get_summary(v), defaultp);
+  owl_free(defaultp);
   owl_fmtext_append_normal(fm, buf);
 }
 
 void owl_variable_get_help(const owl_vardict *d, const char *name, owl_fmtext *fm) {
-  char buff[1024];
-  int bufflen = 1023;
+  char *p;
   owl_variable *v;
 
   if (!name
@@ -804,20 +831,17 @@ void owl_variable_get_help(const owl_vardict *d, const char *name, owl_fmtext *f
   owl_fmtext_append_normal(fm, v->summary);
   owl_fmtext_append_normal(fm, "\n\n");
 
+  p = owl_variable_get_value(d, name);
   owl_fmtext_append_normal(fm, "Current:        ");
-  owl_variable_get_tostring(d, name, buff, bufflen);
-  owl_fmtext_append_normal(fm, buff);
+  owl_fmtext_append_normal(fm, p);
   owl_fmtext_append_normal(fm, "\n\n");
+  owl_free(p);
 
-
-  if (v->type == OWL_VARIABLE_INT || v->type == OWL_VARIABLE_BOOL) {
-    v->get_tostring_fn(v, buff, bufflen, &(v->ival_default));
-  } else {
-    v->get_tostring_fn(v, buff, bufflen, v->pval_default);
-  }
+  p = owl_variable_to_default(v);
   owl_fmtext_append_normal(fm, "Default:        ");
-  owl_fmtext_append_normal(fm, buff);
+  owl_fmtext_append_normal(fm, p);
   owl_fmtext_append_normal(fm, "\n\n");
+  owl_free(p);
 
   owl_fmtext_append_normal(fm, "Valid Settings: ");
   owl_fmtext_append_normal(fm, owl_variable_get_validsettings(v));
@@ -871,20 +895,14 @@ int owl_variable_bool_set_fromstring_default(owl_variable *v, const char *newval
   return (v->set_fn(v, &i));
 }
 
-int owl_variable_bool_get_tostring_default(const owl_variable *v, char* buf, int bufsize, const void *val) {
-  if (val == NULL) {
-    snprintf(buf, bufsize, "<null>");
-    return -1;
-  } else if (*(const int*)val == 0) {
-    snprintf(buf, bufsize, "off");
-    return 0;
-  } else if (*(const int*)val == 1) {
-    snprintf(buf, bufsize, "on");
-    return 0;
-  } else {
-    snprintf(buf, bufsize, "<invalid>");
-    return -1;
-  }
+char *owl_variable_bool_get_tostring_default(const owl_variable *v, const void *val) {
+  if (val == NULL)
+    return NULL;
+  if (*(const int*)val == 0)
+    return owl_strdup("off");
+  if (*(const int*)val == 1)
+    return owl_strdup("on");
+  return owl_strdup("<invalid>");
 }
 
 /* default functions for integers */
@@ -910,14 +928,11 @@ int owl_variable_int_set_fromstring_default(owl_variable *v, const char *newval)
   return (v->set_fn(v, &i));
 }
 
-int owl_variable_int_get_tostring_default(const owl_variable *v, char* buf, int bufsize, const void *val) {
-  if (val == NULL) {
-    snprintf(buf, bufsize, "<null>");
-    return -1;
-  } else {
-    snprintf(buf, bufsize, "%d", *(const int*)val);
-    return 0;
-  } 
+char *owl_variable_int_get_tostring_default(const owl_variable *v, const void *val) {
+  if (val == NULL)
+    return NULL;
+
+  return owl_sprintf("%d", *(const int *)val);
 }
 
 /* default functions for enums (a variant of integers) */
@@ -952,23 +967,22 @@ int owl_variable_enum_set_fromstring(owl_variable *v, const char *newval) {
   return (v->set_fn(v, &val));
 }
 
-int owl_variable_enum_get_tostring(const owl_variable *v, char* buf, int bufsize, const void *val) {
+char *owl_variable_enum_get_tostring(const owl_variable *v, const void *val) {
   char **enums;
   int nenums, i;
+  char *p;
 
-  if (val == NULL) {
-    snprintf(buf, bufsize, "<null>");
-    return -1;
-  }
+  if (val == NULL)
+    return NULL;
+
   enums = atokenize(v->validsettings, ",", &nenums);
   i = *(const int*)val;
-  if (i<0 || i>=nenums) {
-    snprintf(buf, bufsize, "<invalid:%d>",i);
-    atokenize_free(enums, nenums);
-    return(-1);
-  }
-  snprintf(buf, bufsize, "%s", enums[i]);
-  return 0;
+  if (i<0 || i>=nenums)
+    p = owl_sprintf("<invalid:%d>", i);
+  else
+    p = owl_strdup(enums[i]);
+  atokenize_free(enums, nenums);
+  return p;
 }
 
 /* default functions for stringeans */
@@ -991,13 +1005,9 @@ int owl_variable_string_set_fromstring_default(owl_variable *v, const char *newv
   return (v->set_fn(v, newval));
 }
 
-int owl_variable_string_get_tostring_default(const owl_variable *v, char* buf, int bufsize, const void *val) {
-  if (val == NULL) {
-    snprintf(buf, bufsize, "<null>");
-    return -1;
-  } else {
-    snprintf(buf, bufsize, "%s", (const char*)val);
-    return 0;
-  }
+char *owl_variable_string_get_tostring_default(const owl_variable *v, const void *val) {
+  if (val == NULL)
+    return NULL;
+  return owl_strdup((const char *)val);
 }
 
