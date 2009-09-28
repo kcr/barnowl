@@ -15,6 +15,8 @@ typedef struct _owl_editwin_excursion { /*noproto*/
   struct _owl_editwin_excursion *next;
 } oe_excursion;
 
+#define UNDO_DEPTH	128
+
 struct _owl_editwin { /*noproto*/
   char *buff;
   owl_history *hist;
@@ -33,7 +35,14 @@ struct _owl_editwin { /*noproto*/
   int dotsend;
   int echochar;
   oe_excursion *excursions;
-
+  int undo_head;
+  int undo_tail;
+  struct {
+    char *string;
+    int index;
+    int replace;
+    int flag;
+  } undo[UNDO_DEPTH];
   char *command;
   void (*callback)(struct _owl_editwin*);
   void *cbdata;
@@ -61,6 +70,10 @@ static char *oe_chunk(owl_editwin *e, int start, int end);
 #define INCR 4096
 
 #define WHITESPACE " \n\t"
+
+static inline int oe_undo_incr(int i) {
+  return (i + 1) % UNDO_DEPTH;
+}
 
 owl_editwin *owl_editwin_allocate(void)
 {
@@ -107,6 +120,8 @@ void owl_editwin_set_mark(owl_editwin *e)
  */
 void owl_editwin_init(owl_editwin *e, WINDOW *win, int winlines, int wincols, int style, owl_history *hist)
 {
+  int i;
+
   e->buff=owl_malloc(INCR);
   e->buff[0]='\0';
   e->bufflen=0;
@@ -130,6 +145,13 @@ void owl_editwin_init(owl_editwin *e, WINDOW *win, int winlines, int wincols, in
   e->lock=0;
   e->dotsend=0;
   e->echochar='\0';
+
+  if (e->undo_head || e->undo_tail)
+    for (i = e->undo_head; i != e->undo_tail; i = oe_undo_incr(i))
+      owl_free(e->undo[i].string);
+  e->undo_head = 0;
+  e->undo_tail = 0;
+  memset(e->undo, 0, sizeof(e->undo));
 
   /* We get initialized multiple times, but we need to hold on to
      the callbacks, so we can't NULL them here. */
@@ -629,6 +651,15 @@ static int owl_editwin_replace_internal(owl_editwin *e, int replace, const char 
     e->allocated = size;
   }
 
+#if 0
+  e->undo_tail = oe_undo_incr(e->undo_tail);
+  if (e->undo_tail == oe_undo_head)
+    e->undo_head = oe_undo_incr(e->undo_head);
+  e->undo[e->undo_tail].string = owl_malloc(replace);
+  memcpy(e->undo[e->undo_tail].string, e->buff + start, replace);
+  e->undo[e->undo_tail].index = index;
+  e->undo[e->undo_tail].replace = strlen(s);
+#endif
   memmove(e->buff + start + strlen(s), e->buff + end, e->bufflen + 1 - end);
   memcpy(e->buff + start, s, strlen(s));
   change = start - end + strlen(s);
