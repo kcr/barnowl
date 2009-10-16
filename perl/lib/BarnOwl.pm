@@ -446,7 +446,7 @@ sub default_zephyr_signature
   return $zsig;
 }
 
-=head3 random_zephyr_siganture
+=head3 random_zephyr_signature
 
 Pick a random zephyr signature.
 
@@ -456,21 +456,23 @@ Reload the random zephyr signatures
 
 =head3 $random_zsig_separator
 
-What to split the zsigs on
+What to split the zsigs file on.  Defaults to newline.
 
 =cut
 
-our $random_zsig_separator='\n';
+our $random_zsig_separator = qr/\n/;
+our $random_zsig_file = "$ENV{'HOME'}/.zsigs";
+
+srand; # sigh
 
 {
   my $zsigs;
+  my $loaded_mtime;
 
   sub reload_zephyr_signatures {
     my $slurp;
 
-    srand;
-
-    if (open(ZSIGS, "$ENV{'HOME'}/.zsigs")) {
+    if (open(ZSIGS, $random_zsig_file)) {
       {
 	local $/ = undef;
 	$slurp = <ZSIGS>;
@@ -481,11 +483,18 @@ our $random_zsig_separator='\n';
     }
   }
 
+  sub _zsigs_need_reloaded {
+    my $old_mtime = $loaded_mtime;
+    my ($dev, $ino, $mode, $nlink, $uid, $gid, $rdev, $size,
+     $atime, $loaded_mtime, $ctime, $blksize, $blocks) = stat($random_zsig_file);
+    return $old_mtime != $loaded_mtime;
+  }
+
   sub random_zephyr_signature {
-    if (!defined($zsigs)) {
+    if (!defined($zsigs) || _zsigs_need_reloaded()) {
       reload_zephyr_signatures();
     }
-    return $zsigs->[int(rand($#{$zsigs}))];
+    return $zsigs->[int(rand(scalar @$zsigs))];
   }
 }
 
