@@ -463,11 +463,9 @@ What to split the zsigs file on.  Defaults to newline.
 our $random_zsig_separator = qr/\n/;
 our $random_zsig_file = "$ENV{'HOME'}/.zsigs";
 
-srand; # sigh
-
 {
-  my $zsigs;
   my $loaded_mtime;
+  my $zsigs;
 
   sub reload_zephyr_signatures {
     my $slurp;
@@ -485,9 +483,14 @@ srand; # sigh
 
   sub _zsigs_need_reloaded {
     my $old_mtime = $loaded_mtime;
-    my ($dev, $ino, $mode, $nlink, $uid, $gid, $rdev, $size,
-     $atime, $loaded_mtime, $ctime, $blksize, $blocks) = stat($random_zsig_file);
-    return $old_mtime != $loaded_mtime;
+    my @st = stat($random_zsig_file);
+    if (@st) {
+      my ($dev, $ino, $mode, $nlink, $uid, $gid, $rdev, $size,
+	  $atime, $loaded_mtime, $ctime, $blksize, $blocks) = @st;
+	    return $old_mtime != $loaded_mtime;
+    } else {
+      return 0;
+    }
   }
 
   sub random_zephyr_signature {
