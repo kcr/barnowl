@@ -468,36 +468,46 @@ our $random_zsig_file = "$ENV{'HOME'}/.zsigs";
   my $zsigs;
 
   sub reload_zephyr_signatures {
-    my $slurp;
+    my @st = stat($random_zsig_file);
+    if (@st) {
+      _load_signatures_internal($st[10]);
+    }
+  }
 
-    if (open(ZSIGS, $random_zsig_file)) {
+  sub _load_signatures_internal {
+    my ($mtime) = shift;
+    my ($slurp, $newsigs);
+
+    if (open(ZSIGS, '<', $random_zsig_file)) {
       {
 	local $/ = undef;
 	$slurp = <ZSIGS>;
       }
-      $zsigs = [split(/$random_zsig_separator/, $slurp)];
-    } else {
-      $zsigs = [default_zephyr_signature()];
+      $newsigs = [split(/$random_zsig_separator/, $slurp)];
     }
-  }
 
-  sub _zsigs_need_reloaded {
-    my $old_mtime = $loaded_mtime;
-    my @st = stat($random_zsig_file);
-    if (@st) {
-      my ($dev, $ino, $mode, $nlink, $uid, $gid, $rdev, $size,
-	  $atime, $loaded_mtime, $ctime, $blksize, $blocks) = @st;
-	    return $old_mtime != $loaded_mtime;
-    } else {
-      return 0;
+    if (defined($newsigs)) {
+      $zsigs = $newsigs;
+      $loaded_mtime = $mtime;
     }
   }
 
   sub random_zephyr_signature {
-    if (!defined($zsigs) || _zsigs_need_reloaded()) {
-      reload_zephyr_signatures();
+    if (defined($loaded_mtime) || !defined($zsigs)) {
+      my @st = stat($random_zsig_file);
+
+      if (@st) {
+	if ($loaded_mtime != $st[10]) {
+	  _load_signatures_internal($st[10]);
+	}
+      }
     }
-    return $zsigs->[int(rand(scalar @$zsigs))];
+
+    if (defined($zsigs)) {
+      return $zsigs->[int(rand(scalar @$zsigs))];
+    } else {
+      return default_zephyr_signature();
+    }
   }
 }
 
