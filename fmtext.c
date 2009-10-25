@@ -270,11 +270,14 @@ void owl_fmtext_ow_addstr(const owl_fmtext *f, owl_window *ow)
   char attr;
   short fg, bg, pair;
   WINDOW *w = ow->win;
+  chtype bkgd;
   
   if (w==NULL) {
     owl_function_debugmsg("Hit a null window in owl_fmtext_ow_addstr.");
     return;
   }
+
+  bkgd = getbkgd(w);
 
   s = f->textbuff;
   /* Set default attributes. */
@@ -354,7 +357,7 @@ void owl_fmtext_ow_addstr(const owl_fmtext *f, owl_window *ow)
   if (s) {
     waddstr(w, s);
   }
-  wbkgdset(w, 0);
+  wbkgdset(w, bkgd);
 }
 
 /* start with line 'aline' (where the first line is 0) and print

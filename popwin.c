@@ -29,8 +29,11 @@ int owl_popwin_up(owl_popwin *pw)
 
   owl_window_doinput(pw->popwin);
 
+  wbkgdset(pw->popwin->win, COLOR_PAIR(owl_fmtext_get_colorpair(OWL_COLOR_WHITE, OWL_COLOR_BLUE)));
+
   werase(pw->popwin->win);
   werase(pw->borderwin->win);
+
   if (owl_global_is_fancylines(&g)) {
     box(pw->borderwin->win, 0, 0);
   } else {
