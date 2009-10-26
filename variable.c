@@ -357,6 +357,11 @@ static owl_variable variables_to_init[] = {
 	       "                 the cursor will be near the center.\n",
 	       "normal,top,neartop,center,paged,pagedcenter" ),
 
+  OWLVAR_STRING_FULL( "popwin_foreground" /* %OwlVarStub */, "default",
+		      "foreground color for popwin",
+		      "Sets the default foreground color for popup windows.\n",
+		      owl_variable_color_validate, NULL /* set */, NULL /* get */ ),
+
   OWLVAR_STRING_FULL( "editwin_foreground" /* %OwlVarStub */, "default",
 		      "foreground color for popwin",
 		      "Sets the default foreground color for popup windows.\n",
