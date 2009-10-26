@@ -361,6 +361,10 @@ static owl_variable variables_to_init[] = {
 		      "foreground color for popwin",
 		      "Sets the default foreground color for popup windows.\n",
 		      owl_variable_color_validate, NULL /* set */, NULL /* get */ ),
+  OWLVAR_STRING_FULL( "popwin_background" /* %OwlVarStub */, "default",
+		      "foreground color for popwin",
+		      "Sets the default foreground color for popup windows.\n",
+		      owl_variable_color_validate, NULL /* set */, NULL /* get */ ),
 
   OWLVAR_STRING_FULL( "editwin_foreground" /* %OwlVarStub */, "default",
 		      "foreground color for popwin",
@@ -1026,6 +1030,16 @@ int owl_variable_string_get_tostring_default(const owl_variable *v, char* buf, i
 int owl_variable_color_validate(const owl_variable *v, const void *newval)
 {
   return owl_util_string_to_color(newval) != OWL_COLOR_INVALID;
+}
+
+int owl_variable_popwin_color_set(owl_variable *v, const void *newval)
+{
+  if (owl_variable_string_set_default(v, newval) != 0)
+    return -1;
+
+  owl_popwin_set_colors();
+
+  return 0;
 }
 
 int owl_variable_editwin_color_set(owl_variable *v, const void *newval)

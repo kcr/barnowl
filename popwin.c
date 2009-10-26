@@ -1,17 +1,21 @@
 #include "owl.h"
 
+static void owl_popwin_set_colors_internal(owl_popwin *pw);
+
 int owl_popwin_init(owl_popwin *pw)
 {
   pw->active=0;
   pw->needsfirstrefresh=0;
   pw->lines=0;
   pw->cols=0;
+  owl_popwin_set_colors_internal(pw);
   return(0);
 }
 
 int owl_popwin_up(owl_popwin *pw)
 {
   int glines, gcols, startcol, startline;
+  short pair;
 
   /* calculate the size of the popwin */
   glines=owl_global_get_lines(&g);
@@ -29,7 +33,8 @@ int owl_popwin_up(owl_popwin *pw)
 
   owl_window_doinput(pw->popwin);
 
-  wbkgdset(pw->popwin->win, COLOR_PAIR(owl_fmtext_get_colorpair(OWL_COLOR_WHITE, OWL_COLOR_BLUE)));
+  pair = owl_fmtext_get_colorpair(pw->foreground, pw->background);
+  wbkgdset(pw->popwin->win, COLOR_PAIR(pair));
 
   werase(pw->popwin->win);
   werase(pw->borderwin->win);
@@ -109,4 +114,17 @@ int owl_popwin_needs_first_refresh(const owl_popwin *pw)
 void owl_popwin_no_needs_first_refresh(owl_popwin *pw)
 {
   pw->needsfirstrefresh=0;
+}
+
+void owl_popwin_set_colors(void)
+{
+  owl_popwin *pw;
+  pw = owl_global_get_popwin(&g);
+  owl_popwin_set_colors_internal(pw);
+}
+
+static void owl_popwin_set_colors_internal(owl_popwin *pw)
+{
+  pw->foreground = owl_util_string_to_color(owl_global_get_popwin_foreground(&g));
+  pw->background = owl_util_string_to_color(owl_global_get_popwin_background(&g));
 }
