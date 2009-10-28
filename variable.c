@@ -362,7 +362,7 @@ static owl_variable variables_to_init[] = {
 		      "Sets the default foreground color for popup windows.\n",
 		      owl_variable_color_validate, NULL /* set */, NULL /* get */ ),
   OWLVAR_STRING_FULL( "popwin_background" /* %OwlVarStub */, "default",
-		      "foreground color for popwin",
+		      "background color for popwin",
 		      "Sets the default foreground color for popup windows.\n",
 		      owl_variable_color_validate, NULL /* set */, NULL /* get */ ),
 
