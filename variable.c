@@ -1037,7 +1037,7 @@ int owl_variable_popwin_color_set(owl_variable *v, const void *newval)
   if (owl_variable_string_set_default(v, newval) != 0)
     return -1;
 
-  owl_popwin_set_colors();
+  owl_popwin_set_colors(owl_global_get_popwin(&g));
 
   return 0;
 }

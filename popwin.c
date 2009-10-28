@@ -1,14 +1,12 @@
 #include "owl.h"
 
-static void owl_popwin_set_colors_internal(owl_popwin *pw);
-
 int owl_popwin_init(owl_popwin *pw)
 {
   pw->active=0;
   pw->needsfirstrefresh=0;
   pw->lines=0;
   pw->cols=0;
-  owl_popwin_set_colors_internal(pw);
+  owl_popwin_set_colors(pw);
   return(0);
 }
 
@@ -116,14 +114,7 @@ void owl_popwin_no_needs_first_refresh(owl_popwin *pw)
   pw->needsfirstrefresh=0;
 }
 
-void owl_popwin_set_colors(void)
-{
-  owl_popwin *pw;
-  pw = owl_global_get_popwin(&g);
-  owl_popwin_set_colors_internal(pw);
-}
-
-static void owl_popwin_set_colors_internal(owl_popwin *pw)
+void owl_popwin_set_colors(owl_popwin *pw)
 {
   pw->foreground = owl_util_string_to_color(owl_global_get_popwin_foreground(&g));
   pw->background = owl_util_string_to_color(owl_global_get_popwin_background(&g));
