@@ -57,20 +57,22 @@ static int owl_editwin_replace_internal(owl_editwin *e, int replace, const char 
 static const char *oe_copy_buf(owl_editwin *e, const char *buf, int len);
 static int oe_copy_region(owl_editwin *e);
 static char *oe_chunk(owl_editwin *e, int start, int end);
+static void owl_editwin_init(owl_editwin *e, WINDOW *win, int winlines, int wincols, int style, owl_history *hist);
 
 #define INCR 4096
 
 #define WHITESPACE " \n\t"
 
-owl_editwin *owl_editwin_allocate(void)
+owl_editwin *owl_editwin_new(WINDOW *win, int winlines, int wincols, int style, owl_history *hist)
 {
   owl_editwin *e;
   e = owl_malloc(sizeof(owl_editwin));
   memset(e, 0, sizeof(*e));
+  owl_editwin_init(e, win, winlines, wincols, style, hist);
   return e;
 }
 
-void owl_editwin_free(owl_editwin *e)
+void owl_editwin_delete(owl_editwin *e)
 {
   owl_free(e->buff);
   owl_free(e->killbuf);
@@ -118,7 +120,7 @@ void owl_editwin_set_mark(owl_editwin *e)
 /* initialize the editwin e.
  * 'win' is an already initialzed curses window that will be used by editwin
  */
-void owl_editwin_init(owl_editwin *e, WINDOW *win, int winlines, int wincols, int style, owl_history *hist)
+static void owl_editwin_init(owl_editwin *e, WINDOW *win, int winlines, int wincols, int style, owl_history *hist)
 {
   e->buff=owl_malloc(INCR);
   e->buff[0]='\0';

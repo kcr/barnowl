@@ -43,8 +43,7 @@ void owl_global_init(owl_global *g) {
 
   g->rightshift=0;
 
-  g->tw = owl_editwin_allocate();
-  owl_editwin_init(g->tw, NULL, owl_global_get_typwin_lines(g), g->cols, OWL_EDITWIN_STYLE_ONELINE, NULL);
+  g->tw = owl_editwin_new(NULL, owl_global_get_typwin_lines(g), g->cols, OWL_EDITWIN_STYLE_ONELINE, NULL);
 
   owl_keyhandler_init(&g->kh);
   owl_keys_setup_keymaps(&g->kh);

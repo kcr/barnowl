@@ -320,8 +320,7 @@ int owl_editwin_regtest(void) {
   printf("# BEGIN testing owl_editwin\n");
 
   owl_editwin *oe;
-  oe = owl_editwin_allocate();
-  owl_editwin_init(oe, NULL, 80, 80, OWL_EDITWIN_STYLE_MULTILINE, NULL);
+  oe = owl_editwin_new(NULL, 80, 80, OWL_EDITWIN_STYLE_MULTILINE, NULL);
 
   /* TODO: make the strings a little more lenient w.r.t trailing whitespace */
 
@@ -346,7 +345,7 @@ int owl_editwin_regtest(void) {
 							    "\n"
 							    "blah"));
 
-  owl_editwin_free(oe);
+  owl_editwin_delete(oe);
 
   printf("# END testing owl_editwin (%d failures)\n", numfailed);
 
