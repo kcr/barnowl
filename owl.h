@@ -371,6 +371,11 @@ typedef struct _owl_mainwin {
   int lastdisplayed;
 } owl_mainwin;
 
+typedef struct _owl_window {
+  WINDOW *win;
+  int dosearch;
+} owl_window;
+
 typedef struct _owl_viewwin {
   owl_fmtext fmtext;
   int textlines;
@@ -383,8 +388,8 @@ typedef struct _owl_viewwin {
 } owl_viewwin;
   
 typedef struct _owl_popwin {
-  WINDOW *borderwin;
-  WINDOW *popwin;
+  owl_window *borderwin;
+  owl_window *popwin;
   int lines;
   int cols;
   int active;
@@ -544,7 +549,10 @@ typedef struct _owl_global {
   int curmsg_vert_offset;
   owl_view current_view;
   owl_messagelist msglist;
-  WINDOW *recwin, *sepwin, *msgwin, *typwin;
+  owl_window *sepwin;
+  owl_window *recwin;
+  owl_window *msgwin;
+  owl_window *typwin;
   int needrefresh;
   int rightshift;
   int resizepending;

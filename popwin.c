@@ -23,41 +23,40 @@ int owl_popwin_up(owl_popwin *pw)
   pw->cols = owl_util_min(gcols,90)*15/16 + owl_util_max(gcols-90,0)/2;
   startcol = (gcols-pw->cols)/2;
 
-  pw->borderwin=newwin(pw->lines, pw->cols, startline, startcol);
-  pw->popwin=newwin(pw->lines-2, pw->cols-2, startline+1, startcol+1);
-  pw->needsfirstrefresh=1;
-  
-  meta(pw->popwin,TRUE);
-  nodelay(pw->popwin, 1);
-  keypad(pw->popwin, TRUE);
+  pw->borderwin = owl_window_new(pw->lines, pw->cols, startline, startcol);
+  pw->popwin = owl_window_new(pw->lines-2, pw->cols-2, startline+1, startcol+1);
+  pw->needsfirstrefresh = 1;
 
-  werase(pw->popwin);
-  werase(pw->borderwin);
+  owl_window_doinput(pw->popwin);
+
+  werase(pw->popwin->win);
+  werase(pw->borderwin->win);
   if (owl_global_is_fancylines(&g)) {
-    box(pw->borderwin, 0, 0);
+    box(pw->borderwin->win, 0, 0);
   } else {
-    box(pw->borderwin, '|', '-');
-    wmove(pw->borderwin, 0, 0);
-    waddch(pw->borderwin, '+');
-    wmove(pw->borderwin, pw->lines-1, 0);
-    waddch(pw->borderwin, '+');
-    wmove(pw->borderwin, pw->lines-1, pw->cols-1);
-    waddch(pw->borderwin, '+');
-    wmove(pw->borderwin, 0, pw->cols-1);
-    waddch(pw->borderwin, '+');
+    box(pw->borderwin->win, '|', '-');
+    wmove(pw->borderwin->win, 0, 0);
+    waddch(pw->borderwin->win, '+');
+    wmove(pw->borderwin->win, pw->lines - 1, 0);
+    waddch(pw->borderwin->win, '+');
+    wmove(pw->borderwin->win, pw->lines - 1, pw->cols - 1);
+    waddch(pw->borderwin->win, '+');
+    wmove(pw->borderwin->win, 0, pw->cols - 1);
+    waddch(pw->borderwin->win, '+');
   }
     
-  wnoutrefresh(pw->popwin);
-  wnoutrefresh(pw->borderwin);
+  wnoutrefresh(pw->popwin->win);
+  wnoutrefresh(pw->borderwin->win);
   owl_global_set_needrefresh(&g);
-  pw->active=1;
-  return(0);
+  pw->active = 1;
+
+  return 0;
 }
 
 int owl_popwin_close(owl_popwin *pw)
 {
-  delwin(pw->popwin);
-  delwin(pw->borderwin);
+  owl_window_delete(pw->popwin);
+  owl_window_delete(pw->borderwin);
   pw->active=0;
   owl_global_set_needrefresh(&g);
   owl_mainwin_redisplay(owl_global_get_mainwin(&g));
@@ -74,18 +73,18 @@ int owl_popwin_is_active(const owl_popwin *pw)
 /* this will refresh the border as well as the text area */
 int owl_popwin_refresh(const owl_popwin *pw)
 {
-  touchwin(pw->borderwin);
-  touchwin(pw->popwin);
+  touchwin(pw->borderwin->win);
+  touchwin(pw->popwin->win);
 
-  wnoutrefresh(pw->borderwin);
-  wnoutrefresh(pw->popwin);
+  wnoutrefresh(pw->borderwin->win);
+  wnoutrefresh(pw->popwin->win);
   owl_global_set_needrefresh(&g);
   return(0);
 }
 
 WINDOW *owl_popwin_get_curswin(const owl_popwin *pw)
 {
-  return(pw->popwin);
+  return(pw->popwin->win);
 }
 
 int owl_popwin_get_lines(const owl_popwin *pw)

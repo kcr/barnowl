@@ -36,7 +36,7 @@ BASE_SRCS=list.c message.c mainwin.c popwin.c zephyr.c messagelist.c \
      keypress.c keymap.c keybinding.c cmd.c context.c zcrypt.c \
      aim.c buddy.c buddylist.c style.c errqueue.c \
      zbuddylist.c popexec.c obarray.c select.c wcwidth.c \
-     glib_compat.c
+     glib_compat.c window.c
 
 GEN_C = varstubs.c perlglue.c
 GEN_H = owl_prototypes.h

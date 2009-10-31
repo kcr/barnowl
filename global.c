@@ -140,29 +140,23 @@ void _owl_global_setup_windows(owl_global *g) {
   owl_function_debugmsg("_owl_global_setup_windows: about to call newwin(%i, %i, 0, 0)\n", g->recwinlines, cols);
 
   /* create the new windows */
-  g->recwin=newwin(g->recwinlines, cols, 0, 0);
+  g->recwin = owl_window_new(g->recwinlines, cols, 0, 0);
   if (g->recwin==NULL) {
     owl_function_debugmsg("_owl_global_setup_windows: newwin returned NULL\n");
     endwin();
     exit(50);
   }
+  g->recwin->dosearch = 1;
       
-  g->sepwin=newwin(1, cols, g->recwinlines, 0);
-  g->msgwin=newwin(1, cols, g->recwinlines+1, 0);
-  g->typwin=newwin(typwin_lines, cols, g->recwinlines+2, 0);
+  g->sepwin = owl_window_new(1, cols, g->recwinlines, 0);
+  g->msgwin = owl_window_new(1, cols, g->recwinlines+1, 0);
+  g->typwin = owl_window_new(typwin_lines, cols, g->recwinlines+2, 0);
 
-  owl_editwin_set_curswin(g->tw, g->typwin, typwin_lines, g->cols);
+  owl_editwin_set_curswin(g->tw, g->typwin->win, typwin_lines, g->cols);
 
-  idlok(g->typwin, FALSE);
-  idlok(g->recwin, FALSE);
-  idlok(g->sepwin, FALSE);
-  idlok(g->msgwin, FALSE);
+  owl_window_doinput(g->typwin);
 
-  nodelay(g->typwin, 1);
-  keypad(g->typwin, TRUE);
-  wmove(g->typwin, 0, 0);
-
-  meta(g->typwin, TRUE);
+  wmove(g->typwin->win, 0, 0);
 }
 
 owl_context *owl_global_get_context(owl_global *g) {
@@ -247,19 +241,19 @@ owl_keyhandler *owl_global_get_keyhandler(owl_global *g) {
 /* curses windows */
 
 WINDOW *owl_global_get_curs_recwin(const owl_global *g) {
-  return(g->recwin);
+  return(g->recwin->win);
 }
 
 WINDOW *owl_global_get_curs_sepwin(const owl_global *g) {
-  return(g->sepwin);
+  return(g->sepwin->win);
 }
 
 WINDOW *owl_global_get_curs_msgwin(const owl_global *g) {
-  return(g->msgwin);
+  return(g->msgwin->win);
 }
 
 WINDOW *owl_global_get_curs_typwin(const owl_global *g) {
-  return(g->typwin);
+  return(g->typwin->win);
 }
 
 /* typwin */
@@ -432,10 +426,10 @@ void owl_global_resize(owl_global *g, int x, int y) {
   if (!g->resizepending) return;
 
   /* delete the current windows */
-  delwin(g->recwin);
-  delwin(g->sepwin);
-  delwin(g->msgwin);
-  delwin(g->typwin);
+  owl_window_delete(g->recwin);
+  owl_window_delete(g->sepwin);
+  owl_window_delete(g->msgwin);
+  owl_window_delete(g->typwin);
   if (!isendwin()) {
     endwin();
   }
