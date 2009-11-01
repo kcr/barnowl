@@ -1001,3 +1001,7 @@ int owl_variable_string_get_tostring_default(const owl_variable *v, char* buf, i
   }
 }
 
+int owl_variable_color_validate(const owl_variable *v, const void *newval)
+{
+  return owl_util_string_to_color(newval) != OWL_COLOR_INVALID;
+}

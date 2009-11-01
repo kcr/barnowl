@@ -374,6 +374,9 @@ typedef struct _owl_mainwin {
 typedef struct _owl_window {
   WINDOW *win;
   int dosearch;
+  int foreground;
+  int background;
+  char *prefix;
 } owl_window;
 
 typedef struct _owl_viewwin {
