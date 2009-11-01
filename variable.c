@@ -357,6 +357,14 @@ static owl_variable variables_to_init[] = {
 	       "                 the cursor will be near the center.\n",
 	       "normal,top,neartop,center,paged,pagedcenter" ),
 
+  OWLVAR_STRING_FULL( "editwin_foreground" /* %OwlVarStub */, "default",
+		      "foreground color for popwin",
+		      "Sets the default foreground color for popup windows.\n",
+		      owl_variable_color_validate, owl_variable_editwin_color_set, NULL /* get */ ),
+  OWLVAR_STRING_FULL( "editwin_background" /* %OwlVarStub */, "default",
+		      "background color for popwin",
+		      "Sets the default foreground color for popup windows.\n",
+		      owl_variable_color_validate, owl_variable_editwin_color_set, NULL /* get */ ),
 
   OWLVAR_STRING_FULL( "msgwin_foreground", "default",
 		      "foreground color for notification area",
@@ -1013,6 +1021,24 @@ int owl_variable_string_get_tostring_default(const owl_variable *v, char* buf, i
 int owl_variable_color_validate(const owl_variable *v, const void *newval)
 {
   return owl_util_string_to_color(newval) != OWL_COLOR_INVALID;
+}
+
+int owl_variable_editwin_color_set(owl_variable *v, const void *newval)
+{
+  owl_window *win;
+
+  if (owl_variable_string_set_default(v, newval) != 0)
+    return -1;
+
+  win = g.typwin; /*XXX?*/
+  if (win == NULL)
+    return 0;
+
+  win->foreground = owl_util_string_to_color(owl_global_get_editwin_foreground(&g));
+  win->background = owl_util_string_to_color(owl_global_get_editwin_background(&g));
+  owl_window_set_colors(win);
+
+  return 0;
 }
 
 int owl_variable_msgwin_color_set(owl_variable *v, const void *newval)
