@@ -87,24 +87,14 @@ void owl_mainwin_redisplay(owl_mainwin *mw)
     /* if we'll fill the screen print a partial message */
     if ((y+lines > recwinlines) && (i==owl_global_get_curmsg(&g))) mw->curtruncated=1;
     if (y+lines > recwinlines) mw->lasttruncated=1;
-    if (y+lines > recwinlines-1) {
+    if (y + lines > recwinlines - 1)
       isfull=1;
-      owl_message_ow_addstr(m, owl_global_get_recwin(&g),
-			    start,
-			    start+recwinlines-y,
-			    owl_global_get_rightshift(&g),
-			    owl_global_get_cols(&g)+owl_global_get_rightshift(&g)-1,
-			    fgcolor, bgcolor);
-    } else {
-      /* otherwise print the whole thing */
-      owl_message_ow_addstr(m, owl_global_get_recwin(&g),
-			    start,
-			    start+lines,
-			    owl_global_get_rightshift(&g),
-			    owl_global_get_cols(&g)+owl_global_get_rightshift(&g)-1,
-			    fgcolor, bgcolor);
-    }
-
+    owl_message_ow_addstr(m, owl_global_get_recwin(&g),
+			  start,
+			  start + (isfull ? recwinlines - y : lines),
+			  owl_global_get_rightshift(&g),
+			  owl_global_get_cols(&g)+owl_global_get_rightshift(&g)-1,
+			  fgcolor, bgcolor);
 
     /* is it the current message and/or deleted? */
     getyx(recwin, y, x);
