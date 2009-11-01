@@ -6,7 +6,7 @@
 /* initialize the viewwin e.  'win' is an already initialzed curses
  * window that will be used by viewwin
  */
-void owl_viewwin_init_text(owl_viewwin *v, WINDOW *win, int winlines, int wincols, const char *text)
+void owl_viewwin_init_text(owl_viewwin *v, owl_window *w, int winlines, int wincols, const char *text)
 {
   owl_fmtext_init_null(&(v->fmtext));
   if (text) {
@@ -20,7 +20,7 @@ void owl_viewwin_init_text(owl_viewwin *v, WINDOW *win, int winlines, int wincol
   v->rightshift=0;
   v->winlines=winlines;
   v->wincols=wincols;
-  v->curswin=win;
+  v->win = w;
   v->onclose_hook = NULL;
 }
 
@@ -32,7 +32,7 @@ void owl_viewwin_append_text(owl_viewwin *v, const char *text) {
 /* initialize the viewwin e.  'win' is an already initialzed curses
  * window that will be used by viewwin
  */
-void owl_viewwin_init_fmtext(owl_viewwin *v, WINDOW *win, int winlines, int wincols, const owl_fmtext *fmtext)
+void owl_viewwin_init_fmtext(owl_viewwin *v, owl_window *w, int winlines, int wincols, const owl_fmtext *fmtext)
 {
   char *text;
 
@@ -46,14 +46,7 @@ void owl_viewwin_init_fmtext(owl_viewwin *v, WINDOW *win, int winlines, int winc
   v->rightshift=0;
   v->winlines=winlines;
   v->wincols=wincols;
-  v->curswin=win;
-}
-
-void owl_viewwin_set_curswin(owl_viewwin *v, WINDOW *w, int winlines, int wincols)
-{
-  v->curswin=w;
-  v->winlines=winlines;
-  v->wincols=wincols;
+  v->win = w;
 }
 
 void owl_viewwin_set_onclose_hook(owl_viewwin *v, void (*onclose_hook) (owl_viewwin *vwin, void *data), void *onclose_hook_data) {
@@ -67,8 +60,8 @@ void owl_viewwin_redisplay(owl_viewwin *v, int update)
 {
   owl_fmtext fm1, fm2;
   
-  werase(v->curswin);
-  wmove(v->curswin, 0, 0);
+  werase(v->win->win);
+  wmove(v->win->win, 0, 0);
 
   owl_fmtext_init_null(&fm1);
   owl_fmtext_init_null(&fm2);
@@ -76,18 +69,18 @@ void owl_viewwin_redisplay(owl_viewwin *v, int update)
   owl_fmtext_truncate_lines(&(v->fmtext), v->topline, v->winlines-BOTTOM_OFFSET, &fm1);
   owl_fmtext_truncate_cols(&fm1, v->rightshift, v->wincols-1+v->rightshift, &fm2);
 
-  owl_fmtext_curs_waddstr_without_search(&fm2, v->curswin);
+  owl_fmtext_ow_addstr(&fm2, v->win);
 
   /* print the message at the bottom */
-  wmove(v->curswin, v->winlines-1, 0);
-  wattrset(v->curswin, A_REVERSE);
+  wmove(v->win->win, v->winlines-1, 0);
+  wattrset(v->win->win, A_REVERSE);
   if (v->textlines - v->topline > v->winlines-BOTTOM_OFFSET) {
-    waddstr(v->curswin, "--More-- (Space to see more, 'q' to quit)");
+    waddstr(v->win->win, "--More-- (Space to see more, 'q' to quit)");
   } else {
-    waddstr(v->curswin, "--End-- (Press 'q' to quit)");
+    waddstr(v->win->win, "--End-- (Press 'q' to quit)");
   }
-  wattroff(v->curswin, A_REVERSE);
-  wnoutrefresh(v->curswin);
+  wattroff(v->win->win, A_REVERSE);
+  wnoutrefresh(v->win->win);
 
   if (update==1) {
     doupdate();

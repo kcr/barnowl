@@ -1320,7 +1320,7 @@ void owl_function_popless_text(const char *text)
   v=owl_global_get_viewwin(&g);
 
   owl_popwin_up(pw);
-  owl_viewwin_init_text(v, owl_popwin_get_curswin(pw),
+  owl_viewwin_init_text(v, owl_popwin_get_win(pw),
 			owl_popwin_get_lines(pw), owl_popwin_get_cols(pw),
 			text);
   owl_popwin_refresh(pw);
@@ -1337,7 +1337,7 @@ void owl_function_popless_fmtext(const owl_fmtext *fm)
   v=owl_global_get_viewwin(&g);
 
   owl_popwin_up(pw);
-  owl_viewwin_init_fmtext(v, owl_popwin_get_curswin(pw),
+  owl_viewwin_init_fmtext(v, owl_popwin_get_win(pw),
 		   owl_popwin_get_lines(pw), owl_popwin_get_cols(pw),
 		   fm);
   owl_popwin_refresh(pw);

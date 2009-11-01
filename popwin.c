@@ -82,9 +82,9 @@ int owl_popwin_refresh(const owl_popwin *pw)
   return(0);
 }
 
-WINDOW *owl_popwin_get_curswin(const owl_popwin *pw)
+owl_window *owl_popwin_get_win(const owl_popwin *pw)
 {
-  return(pw->popwin->win);
+  return(pw->popwin);
 }
 
 int owl_popwin_get_lines(const owl_popwin *pw)

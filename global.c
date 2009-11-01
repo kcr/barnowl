@@ -238,6 +238,10 @@ owl_keyhandler *owl_global_get_keyhandler(owl_global *g) {
   return(&(g->kh));
 }
 
+owl_window *owl_global_get_recwin(const owl_global *g) {
+  return(g->recwin);
+}
+
 /* curses windows */
 
 WINDOW *owl_global_get_curs_recwin(const owl_global *g) {

@@ -263,19 +263,16 @@ void _owl_fmtext_wcolor_set(WINDOW *w, short pair) /*noproto*/
   }
 }
 
-/* add the formatted text to the curses window 'w'.  The window 'w'
- * must already be initiatlized with curses
- */
-void _owl_fmtext_curs_waddstr(const owl_fmtext *f, WINDOW *w, int do_search) /*noproto*/
+/* add the formatted text to the owl window 'ow'. */
+void owl_fmtext_ow_addstr(const owl_fmtext *f, owl_window *ow)
 {
-  /* char *tmpbuff; */
-  /* int position, trans1, trans2, trans3, len, lastsame; */
   char *s, *p;
   char attr;
   short fg, bg, pair;
+  WINDOW *w = ow->win;
   
   if (w==NULL) {
-    owl_function_debugmsg("Hit a null window in owl_fmtext_curs_waddstr.");
+    owl_function_debugmsg("Hit a null window in owl_fmtext_ow_addstr.");
     return;
   }
 
@@ -297,7 +294,7 @@ void _owl_fmtext_curs_waddstr(const owl_fmtext *f, WINDOW *w, int do_search) /*n
    
       tmp = p[0];
       p[0] = '\0';
-      if (owl_global_is_search_active(&g)) {
+      if (ow->dosearch && owl_global_is_search_active(&g)) {
 	/* Search is active, so highlight search results. */
 	char tmp2;
 	int start, end;
@@ -358,16 +355,6 @@ void _owl_fmtext_curs_waddstr(const owl_fmtext *f, WINDOW *w, int do_search) /*n
     waddstr(w, s);
   }
   wbkgdset(w, 0);
-}
-
-void owl_fmtext_curs_waddstr(const owl_fmtext *f, WINDOW *w)
-{
-  _owl_fmtext_curs_waddstr(f, w, owl_global_is_search_active(&g));
-}
-
-void owl_fmtext_curs_waddstr_without_search(const owl_fmtext *f, WINDOW *w)
-{
-  _owl_fmtext_curs_waddstr(f, w, 0);
 }
 
 /* start with line 'aline' (where the first line is 0) and print

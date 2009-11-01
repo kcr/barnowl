@@ -502,7 +502,7 @@ const char *owl_message_get_hostname(const owl_message *m)
   return(m->hostname);
 }
 
-void owl_message_curs_waddstr(owl_message *m, WINDOW *win, int aline, int bline, int acol, int bcol, int fgcolor, int bgcolor)
+void owl_message_ow_addstr(owl_message *m, owl_window *win, int aline, int bline, int acol, int bcol, int fgcolor, int bgcolor)
 {
   owl_fmtext a, b;
 
@@ -517,7 +517,7 @@ void owl_message_curs_waddstr(owl_message *m, WINDOW *win, int aline, int bline,
   owl_fmtext_colorize(&b, fgcolor);
   owl_fmtext_colorizebg(&b, bgcolor);
 
-  owl_fmtext_curs_waddstr(&b, win);
+  owl_fmtext_ow_addstr(&b, win);
 
   owl_fmtext_free(&a);
   owl_fmtext_free(&b);
