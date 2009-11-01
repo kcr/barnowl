@@ -261,26 +261,26 @@ WINDOW *owl_global_get_curs_typwin(const owl_global *g) {
 
 /* typwin */
 
-owl_editwin *owl_global_get_typwin(const owl_global *g) {
+owl_editwin *owl_global_get_editwin(const owl_global *g) {
   return(g->tw);
 }
 
 /* buffercommand */
 
 void owl_global_set_buffercommand(owl_global *g, const char *command) {
-  owl_editwin_set_command(owl_global_get_typwin(g), command);
+  owl_editwin_set_command(owl_global_get_editwin(g), command);
 }
 
 const char *owl_global_get_buffercommand(const owl_global *g) {
-  return owl_editwin_get_command(owl_global_get_typwin(g));
+  return owl_editwin_get_command(owl_global_get_editwin(g));
 }
 
 void owl_global_set_buffercallback(owl_global *g, void (*cb)(owl_editwin*)) {
-  owl_editwin_set_callback(owl_global_get_typwin(g), cb);
+  owl_editwin_set_callback(owl_global_get_editwin(g), cb);
 }
 
 void (*owl_global_get_buffercallback(const owl_global *g))(owl_editwin*) {
-  return owl_editwin_get_callback(owl_global_get_typwin(g));
+  return owl_editwin_get_callback(owl_global_get_editwin(g));
 }
 
 /* refresh */

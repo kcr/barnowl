@@ -178,8 +178,8 @@ start_question(line, callback)
 
 		owl_function_start_question(line);
 
-		owl_editwin_set_cbdata(owl_global_get_typwin(&g), SvREFCNT_inc(callback));
-		owl_editwin_set_callback(owl_global_get_typwin(&g), owl_perlconfig_edit_callback);
+		owl_editwin_set_cbdata(owl_global_get_editwin(&g), SvREFCNT_inc(callback));
+		owl_editwin_set_callback(owl_global_get_editwin(&g), owl_perlconfig_edit_callback);
 	}
 
 void
@@ -194,8 +194,8 @@ start_password(line, callback)
 
 		owl_function_start_password(line);
 
-		owl_editwin_set_cbdata(owl_global_get_typwin(&g), SvREFCNT_inc(callback));
-		owl_editwin_set_callback(owl_global_get_typwin(&g), owl_perlconfig_edit_callback);
+		owl_editwin_set_cbdata(owl_global_get_editwin(&g), SvREFCNT_inc(callback));
+		owl_editwin_set_callback(owl_global_get_editwin(&g), owl_perlconfig_edit_callback);
 	}
 
 void
@@ -540,7 +540,7 @@ replace(count, string)
 	int count;
 	const char *string;
 	CODE:
-		RETVAL = owl_editwin_replace(owl_global_get_typwin(&g), count, string);
+		RETVAL = owl_editwin_replace(owl_global_get_editwin(&g), count, string);
 	OUTPUT:
 		RETVAL
 
@@ -548,7 +548,7 @@ int
 point_move(delta)
 	int delta;
 	CODE:
-		RETVAL = owl_editwin_point_move(owl_global_get_typwin(&g), delta);
+		RETVAL = owl_editwin_point_move(owl_global_get_editwin(&g), delta);
 	OUTPUT:
 		RETVAL
 
@@ -556,7 +556,7 @@ int
 replace_region(string)
 	const char *string;
 	CODE:
-		RETVAL = owl_editwin_replace_region(owl_global_get_typwin(&g), string);
+		RETVAL = owl_editwin_replace_region(owl_global_get_editwin(&g), string);
 	OUTPUT:
 		RETVAL
 
@@ -565,7 +565,7 @@ get_region()
 	PREINIT:
 		char *region;
 	CODE:
-		region = owl_editwin_get_region(owl_global_get_typwin(&g));
+		region = owl_editwin_get_region(owl_global_get_editwin(&g));
 		RETVAL = region;
 	OUTPUT:
 		RETVAL
@@ -581,11 +581,11 @@ save_excursion(sub)
 		owl_editwin_excursion *x;
 	CODE:
 	{
-		x = owl_editwin_begin_excursion(owl_global_get_typwin(&g));
+		x = owl_editwin_begin_excursion(owl_global_get_editwin(&g));
 		PUSHMARK(SP);
 		count = call_sv(sub, G_SCALAR|G_EVAL|G_NOARGS);
 		SPAGAIN;
-		owl_editwin_end_excursion(owl_global_get_typwin(&g), x);
+		owl_editwin_end_excursion(owl_global_get_editwin(&g), x);
 
 		if(SvTRUE(ERRSV)) {
 			croak(NULL);
@@ -603,20 +603,20 @@ save_excursion(sub)
 int
 current_column()
 	CODE:
-		RETVAL = owl_editwin_current_column(owl_global_get_typwin(&g));
+		RETVAL = owl_editwin_current_column(owl_global_get_editwin(&g));
 	OUTPUT:
 		RETVAL
 
 int
 point()
 	CODE:
-		RETVAL = owl_editwin_get_point(owl_global_get_typwin(&g));
+		RETVAL = owl_editwin_get_point(owl_global_get_editwin(&g));
 	OUTPUT:
 		RETVAL
 
 int
 mark()
 	CODE:
-		RETVAL = owl_editwin_get_mark(owl_global_get_typwin(&g));
+		RETVAL = owl_editwin_get_mark(owl_global_get_editwin(&g));
 	OUTPUT:
 		RETVAL

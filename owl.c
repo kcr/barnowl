@@ -580,7 +580,7 @@ int main(int argc, char **argv, char **env)
   recwin=owl_global_get_curs_recwin(&g);
   sepwin=owl_global_get_curs_sepwin(&g);
   typwin=owl_global_get_curs_typwin(&g);
-  tw=owl_global_get_typwin(&g);
+  tw = owl_global_get_editwin(&g);
 
   /* welcome message */
   owl_function_debugmsg("startup: creating splash message");

@@ -286,7 +286,7 @@ void owl_function_start_edit_win(const char *line, void (*callback)(owl_editwin 
   char *s;
 
   /* create and setup the editwin */
-  e = owl_global_get_typwin(&g);
+  e = owl_global_get_editwin(&g);
   owl_editwin_new_style(e, OWL_EDITWIN_STYLE_MULTILINE,
 			owl_global_get_msg_history(&g));
   owl_editwin_clear(e);
@@ -298,7 +298,7 @@ void owl_function_start_edit_win(const char *line, void (*callback)(owl_editwin 
   /* make it active */
   owl_global_set_typwin_active(&g);
 
-  owl_editwin_set_cbdata(owl_global_get_typwin(&g), data);
+  owl_editwin_set_cbdata(owl_global_get_editwin(&g), data);
   owl_global_set_buffercallback(&g, callback);
 }
 
@@ -350,7 +350,7 @@ void owl_function_loopwrite_setup(void)
   owl_editwin *e;
 
   /* create and setup the editwin */
-  e=owl_global_get_typwin(&g);
+  e = owl_global_get_editwin(&g);
   owl_editwin_new_style(e, OWL_EDITWIN_STYLE_MULTILINE, owl_global_get_msg_history(&g));
 
   if (!owl_global_get_lockout_ctrld(&g)) {
@@ -1220,7 +1220,7 @@ void owl_function_resize(void)
 
 void owl_function_run_buffercommand(void)
 {
-  owl_editwin_do_callback(owl_global_get_typwin(&g));
+  owl_editwin_do_callback(owl_global_get_editwin(&g));
 }
 
 void owl_function_debugmsg(const char *fmt, ...)
@@ -1948,7 +1948,7 @@ void owl_function_start_command(const char *line)
 {
   owl_editwin *tw;
 
-  tw=owl_global_get_typwin(&g);
+  tw=owl_global_get_editwin(&g);
   owl_global_set_typwin_active(&g);
   owl_editwin_new_style(tw, OWL_EDITWIN_STYLE_ONELINE, 
 			owl_global_get_cmd_history(&g));
@@ -1967,7 +1967,7 @@ void owl_function_start_question(const char *line)
 {
   owl_editwin *tw;
 
-  tw=owl_global_get_typwin(&g);
+  tw=owl_global_get_editwin(&g);
   owl_global_set_typwin_active(&g);
   owl_editwin_new_style(tw, OWL_EDITWIN_STYLE_ONELINE, owl_global_get_cmd_history(&g));
 
@@ -1984,7 +1984,7 @@ void owl_function_start_password(const char *line)
 {
   owl_editwin *tw;
 
-  tw=owl_global_get_typwin(&g);
+  tw=owl_global_get_editwin(&g);
   owl_global_set_typwin_active(&g);
   owl_editwin_new_style(tw, OWL_EDITWIN_STYLE_ONELINE, owl_global_get_cmd_history(&g));
   owl_editwin_set_echochar(tw, '*');

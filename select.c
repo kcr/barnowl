@@ -265,7 +265,7 @@ void owl_process_input_char(owl_input j)
 
   owl_global_set_lastinputtime(&g, time(NULL));
   pw=owl_global_get_popwin(&g);
-  tw=owl_global_get_typwin(&g);
+  tw = owl_global_get_editwin(&g);
 
   owl_global_set_lastinputtime(&g, time(NULL));
   /* find and activate the current keymap.
