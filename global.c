@@ -148,7 +148,7 @@ void _owl_global_setup_windows(owl_global *g) {
   g->recwin->dosearch = 1;
       
   g->sepwin = owl_window_new(1, cols, g->recwinlines, 0);
-  g->msgwin = owl_window_new(1, cols, g->recwinlines+1, 0);
+  g->msgwin = owl_window_new_prefix(1, cols, g->recwinlines+1, 0, "msgwin");
   g->typwin = owl_window_new(typwin_lines, cols, g->recwinlines+2, 0);
 
   owl_editwin_set_curswin(g->tw, g->typwin->win, typwin_lines, g->cols);

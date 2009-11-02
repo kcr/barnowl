@@ -358,6 +358,15 @@ static owl_variable variables_to_init[] = {
 	       "normal,top,neartop,center,paged,pagedcenter" ),
 
 
+  OWLVAR_STRING_FULL( "msgwin_foreground", "default",
+		      "foreground color for notification area",
+		      "Sets the default foreground color for the notification area.\n",
+		      owl_variable_color_validate, owl_variable_msgwin_color_set, NULL /* get */ ),
+  OWLVAR_STRING_FULL( "msgwin_background", "default",
+		      "background color for notification area",
+		      "Sets the default foreground color for the norification area.\n",
+		      owl_variable_color_validate, owl_variable_msgwin_color_set, NULL /* get */ ),
+
   OWLVAR_BOOL( "_followlast" /* %OwlVarStub */, 0,
 	       "enable automatic following of the last zephyr",
 	       "If the cursor is at the last message, it will\n"
@@ -1004,4 +1013,20 @@ int owl_variable_string_get_tostring_default(const owl_variable *v, char* buf, i
 int owl_variable_color_validate(const owl_variable *v, const void *newval)
 {
   return owl_util_string_to_color(newval) != OWL_COLOR_INVALID;
+}
+
+int owl_variable_msgwin_color_set(owl_variable *v, const void *newval)
+{
+  owl_window *win;
+
+  if (owl_variable_string_set_default(v, newval) != 0)
+    return -1;
+
+  win = g.msgwin; /*XXX?*/
+  if (win == NULL)
+    return 0;
+
+  owl_window_update_config(win);
+
+  return 0;
 }
